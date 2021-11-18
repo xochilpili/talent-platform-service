@@ -1,0 +1,23 @@
+{
+	"extends": "@tsconfig/node16/tsconfig.json",
+	"ts-node": {
+		"moduleTypes": {
+			"jest.config.ts": "cjs"
+		}
+	},
+	"compilerOptions": {
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"sourceMap": true,
+		"allowSyntheticDefaultImports": true,
+		"strict": true,
+		"outDir": "dist",
+		"baseUrl": "src",
+		"moduleResolution": "Node",
+		"resolveJsonModule": true,
+		"module": "CommonJS",
+		"types": ["node", "jest", "reflect-metadata"],
+		"strictPropertyInitialization": false // nasty workaround for TypeORM
+	},
+	"exclude": ["node_modules", "tests"]
+}

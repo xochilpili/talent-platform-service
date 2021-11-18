@@ -1,0 +1,17 @@
+{
+	"parser": "@typescript-eslint/parser",
+	"parserOptions": {
+		"ecmaVersion": "2020",
+		"project": "./tsconfig.json"
+	},
+	"extends": ["eslint:recommended", "standard", "prettier", "plugin:@typescript-eslint/recommended"],
+	"plugins": ["@typescript-eslint"],
+	"env": {
+		"es6": true,
+		"node": true
+	},
+	"ignorePatterns": ["dist", "./node_modules", "examples", "scripts", "jest.config.js", "tests"],
+	"rules": {
+		"no-console": 1
+	}
+}
