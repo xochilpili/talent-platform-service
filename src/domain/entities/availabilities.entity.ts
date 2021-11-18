@@ -2,6 +2,16 @@ import { Column, Entity, EntityRepository, PrimaryGeneratedColumn, Repository } 
 
 @Entity()
 export class CatAvailability {
+	// Notice:
+	/*
+		Estamos usando sequences en postgresql,
+		si por alguna razón añadimos un registro a mano en la base de datos
+		TypeORM no registra ese cambio, entonces regresa un `violation index`
+		STR ejemplo: 
+		#pgsql> insert into cat_availabilities(description)values('hello world');
+		y después hacemos un POST
+
+	*/
 	@PrimaryGeneratedColumn()
 	id_availability: number;
 
