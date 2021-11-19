@@ -21,6 +21,7 @@ export class DatabaseService implements IDatabase {
 
 		try {
 			DatabaseService.connection = await createConnection({
+				name: 'default',
 				type: 'postgres',
 				host: getConfig('/database/host'),
 				port: getConfig('/database/port'),

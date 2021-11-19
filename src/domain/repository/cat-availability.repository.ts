@@ -1,17 +1,22 @@
 import { injectable } from 'inversify';
 import { getCustomRepository } from 'typeorm';
-/*
-	METHOD: 1
-		If you're using connection object use this : 
-import { appContext } from '../../inversify.config';
+
+//	METHOD: 1
+//		If you're using connection object use this :
+/* import { appContext } from '../../inversify.config';
 import { Types } from '../../types';
 import { IDatabase } from './../../interfaces/database';
-
 */
 import { CatAvailability, CatAvailabilityService } from './../entities/availabilities.entity';
 
 @injectable()
 export class CatAvailabilityRepository {
+	// private repository: CatAvailabilityService;
+
+	/* constructor() {
+		 this.repository = getCustomRepository(CatAvailabilityService);
+	} */
+
 	// METHOD: 1
 	// private readonly databaseService: IDatabase = appContext.get<IDatabase>(Types.DatabaseService);
 	public async getAvailabilities(): Promise<CatAvailability[]> {
@@ -21,6 +26,7 @@ export class CatAvailabilityRepository {
 
 		const repository = getCustomRepository(CatAvailabilityService);
 		const avails = await repository.find();
+		console.log('calls', avails);
 		return avails;
 	}
 

@@ -10,6 +10,8 @@ export class CatAvailability {
 		STR ejemplo: 
 		#pgsql> insert into cat_availabilities(description)values('hello world');
 		y después hacemos un POST
+		Stupid package:
+		https://github.com/typeorm/typeorm/issues/2654
 
 	*/
 	@PrimaryGeneratedColumn()

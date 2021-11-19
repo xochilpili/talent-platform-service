@@ -1,19 +1,19 @@
-import { DatabaseService } from './database';
 import { appContext } from './inversify.config';
 import { Types } from './types';
 import { ILogger } from './logger';
 import { IRouter } from './interfaces/router';
 import * as Plugins from './plugins';
+import { DatabaseService } from './database';
 import Hapi from '@hapi/hapi';
 import Boom from '@hapi/boom';
 import Joi from 'joi';
 import { get as getConfig } from './config';
-
+import { Connection } from 'typeorm';
 export default class Server {
 	private static logger = appContext.get<ILogger>(Types.Logger);
 	private static routes = appContext.get<IRouter>(Types.Router);
-	private static databaseService = appContext.get<DatabaseService>(DatabaseService);
 	private static _instance: Hapi.Server;
+	private static _connection: Connection;
 
 	public static async start(): Promise<Hapi.Server> {
 		try {
@@ -48,7 +48,9 @@ export default class Server {
 
 			await this.routes.loadRoutes(this._instance);
 			await this._instance.start();
-			await this.databaseService.getConnection();
+
+			const databaseService = appContext.get<DatabaseService>(DatabaseService);
+			this._connection = await databaseService.getConnection();
 			this.logger.info(`App started at port=${getConfig('/service/port')}`);
 
 			return this._instance;
@@ -61,6 +63,6 @@ export default class Server {
 	public static async stop(): Promise<void> {
 		this.logger.info(`Server - Stopping execution`);
 		await this._instance.stop();
-		await this.databaseService.closeConnection();
+		await this._connection.close();
 	}
 }
