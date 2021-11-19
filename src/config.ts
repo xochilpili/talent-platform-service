@@ -1,7 +1,7 @@
 import { Store } from 'confidence';
 import * as dotEnv from 'dotenv';
 dotEnv.config({
-	path: `${process.cwd}/.env`,
+	path: `${process.cwd()}/.env`,
 });
 const document = {
 	env: { $env: 'ENV', $default: 'development' },
