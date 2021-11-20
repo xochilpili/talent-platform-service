@@ -4,7 +4,7 @@ import { Types } from '../../types';
 import { ILogger } from './../../logger';
 import { IResponse, HttpStatusCodes } from '../../interfaces/responses';
 import { CatAvailability } from '../../domain/entities/availabilities.entity';
-import { CatAvailabilityRepository } from './../repository/cat-availability.repository';
+import { CatAvailabilityRepository } from '../repository/cat-availability.repository';
 import { Errors } from './../../shared/response-errors';
 
 @injectable()

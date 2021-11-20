@@ -23,5 +23,5 @@ export class CatAvailability {
 	description: string;
 }
 
-@EntityRepository(CatAvailability)
-export class CatAvailabilityService extends Repository<CatAvailability> {}
+/* @EntityRepository(CatAvailability)
+export class CatAvailabilityService extends Repository<CatAvailability> {} */

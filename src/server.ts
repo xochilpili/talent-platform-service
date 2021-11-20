@@ -41,6 +41,9 @@ export default class Server {
 			// adding Joi default validator
 			this._instance.validator(Joi);
 
+			const databaseService = appContext.get<DatabaseService>(DatabaseService);
+			this._connection = await databaseService.getConnection();
+
 			await new Plugins.LoggerLoader().register(this._instance);
 			await new Plugins.SwaggerLoader().register(this._instance);
 			await new Plugins.SecureHeaderLoader().register(this._instance);
@@ -49,8 +52,6 @@ export default class Server {
 			await this.routes.loadRoutes(this._instance);
 			await this._instance.start();
 
-			const databaseService = appContext.get<DatabaseService>(DatabaseService);
-			this._connection = await databaseService.getConnection();
 			this.logger.info(`App started at port=${getConfig('/service/port')}`);
 
 			return this._instance;
