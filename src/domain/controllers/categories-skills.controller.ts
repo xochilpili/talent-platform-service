@@ -7,7 +7,7 @@ import { CatCategorySkills } from '../../domain/entities/categories-skills.entit
 import { CatCategorySkillsRepository } from '../repository/cat-category-skills.repository';
 import { Errors } from './../../shared/response-errors';
 
-injectable()
+@injectable()
 export class CategorySkillsController {
     private readonly logger = appContext.get<ILogger>(Types.Logger);
     private readonly categorySkillsRepository = appContext.get<CatCategorySkillsRepository>(CatCategorySkillsRepository);
@@ -43,4 +43,5 @@ export class CategorySkillsController {
 			throw error;
         }
     }
+  
 }

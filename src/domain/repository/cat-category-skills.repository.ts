@@ -13,4 +13,5 @@ export class CatCategorySkillsRepository {
         newObject.description = description;
         return getConnection().getRepository(CatCategorySkills).save(newObject);
     }
+
 }

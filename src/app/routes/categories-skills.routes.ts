@@ -20,7 +20,7 @@ export class CategoriesSkillsRoute implements IRouter {
 
         server.route({
             method: 'POST',
-            path: `/${this.apiVersion}/category-skills`,
+            path: `/${this.apiVersion}/categories-skills`,
             handler: this.categorySkillsHandler.addCategorySkill,
             options: {
                 validate: {
