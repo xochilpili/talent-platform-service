@@ -6,6 +6,7 @@ import { ILogger } from './logger';
 import { get as getConfig } from './config';
 // entities
 import { CatAvailability } from './domain/entities/availabilities.entity';
+import { CatCategorySkills } from './domain/entities/categories-skills.entity';
 
 @injectable()
 export class DatabaseService implements IDatabase {
