@@ -28,7 +28,9 @@ export class DatabaseService implements IDatabase {
 				username: getConfig('/database/username'),
 				password: getConfig('/database/password'),
 				database: getConfig('/database/dbname'),
-				entities: [CatAvailability],
+				entities: [
+					"src/domain/entities/**/*.ts"
+				],
 				synchronize: true,
 			});
 			this.logger.info(`Connection with PostgreSQL stablished`);
