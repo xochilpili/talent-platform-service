@@ -30,6 +30,15 @@ export class EducationLevelController {
 
 	public addEducationLevel = async (description: string): Promise<IResponse<CatEducationLevel>> => {
 		try {
+			if (!(await this.educationLevelRepository.educationLevelExists(description))) {
+				throw Errors.conflict({
+					message: 'Education level already exists',
+					issue: '',
+					route: this.constructor.name,
+					method: 'addEducationLevel',
+					learnMore: '',
+				});
+			}
 			const educationLevel = await this.educationLevelRepository.addEducationLevel(description);
 			return {
 				type: 'success',
@@ -44,7 +53,7 @@ export class EducationLevelController {
 		}
 	};
 
-    public updateEducationLevel = async (id: number, description: string): Promise<IResponse<CatEducationLevel>> => {
+	public updateEducationLevel = async (id: number, description: string): Promise<IResponse<CatEducationLevel>> => {
 		try {
 			const educationLevel = await this.educationLevelRepository.updateEducationLevel(id, description);
 			return {
