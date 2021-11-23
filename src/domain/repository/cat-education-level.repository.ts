@@ -8,11 +8,6 @@ export class CatEducationLevelRepository {
 		return getConnection().getRepository(CatEducationLevel).find();
 	}
 
-	public async educationLevelExists(description: string): Promise<boolean> {
-		const exists = getConnection().getRepository(CatEducationLevel).find({ description: description.toLowerCase() }); // we have to save data in lowerCase
-		return !exists;
-	}
-
 	public async addEducationLevel(description: string): Promise<CatEducationLevel> {
 		const newObject = new CatEducationLevel();
 		newObject.description = description;

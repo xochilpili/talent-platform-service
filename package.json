@@ -15,7 +15,11 @@
 		"lint": "eslint . --ext ts --fix",
 		"prebuild": "npm run lint",
 		"build": "npm run tsc",
-		"dev": "ts-node-dev --respawn ./src/index.ts"
+		"dev": "ts-node-dev --respawn ./src/index.ts",
+		"migration:create": "ts-node ./node_modules/typeorm/cli.js migration:create -n",
+		"migration:run": "ts-node ./node_modules/typeorm/cli.js migration:run",
+		"migration:revert": "ts-node ./node_modules/typeorm/cli.js migration:revert",
+		"schema:sync": "ts-node ./node_modules/typeorm/cli.js schema:sync"
 	},
 	"keywords": [],
 	"author": "xochilpili <xochilpili@gmail.com>",

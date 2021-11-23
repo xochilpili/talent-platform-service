@@ -1,169 +1,196 @@
 import 'reflect-metadata';
+import { appContext } from '../../../src/inversify.config';
 import Hapi from '@hapi/hapi';
-import { Repository } from 'typeorm';
-import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError'
-import sinon from 'sinon';
-
-import { get as getConfig } from '../../../src/config';
 import Server from '../../../src/server';
+import { fakeEducationLevel, fakeValidPayload, fakeInvalidPayload } from './../../fixtures/fake-education-level';
+import { CatEducationLevel } from '../../../src/domain/entities/education-level.entity';
+import { CatEducationLevelRepository } from './../../../src/domain/repository/cat-education-level.repository';
+import { get as getConfig } from '../../../src/config';
+import { QueryFailedError, EntityNotFoundError } from 'typeorm'
 
 
-describe('Availability Controller Test', () => {
+describe('Education Level Controller Test', () => {
 	let server: Hapi.Server;
 	const apiVersion = getConfig('/service/apiVersion');
-    let sandbox: sinon.SinonSandbox;
 
-	const successPromise = (result: any): Promise<any> => {
-		return new Promise((resolve) =>{
-			resolve(result);
-		})
-	};
+	const educationLevelRepository = appContext.get<CatEducationLevelRepository>(CatEducationLevelRepository);
 
 	beforeAll(async () => {
+		process.env.ENV = 'tests';
 		server = await Server.start();
-        sandbox = sinon.createSandbox();
+	});
+
+	afterEach(() => {
+		jest.clearAllMocks();
+		jest.resetAllMocks();
 	});
 
 	afterAll(async () => {
 		await Server.stop();
 	});
 
-    afterEach(() => {
-		sandbox.restore()
-	});
-
-	it('should get education level', async () => {
-		const mockData = [{
-			id_education_level: 1,
-			description: "Bachelors"
-		}];
-
-        const stub = sandbox.stub(Repository.prototype)
-        stub.find.returns(successPromise(mockData));
-
+	it('should get all education levels', async () => {
+		educationLevelRepository.getEducationLevels = jest.fn().mockResolvedValueOnce([fakeEducationLevel]);
+		const expected: CatEducationLevel[] = [fakeEducationLevel];
 		const data = await server.inject({
 			method: 'GET',
 			url: `/${apiVersion}/education-level`,
 		});
 
 		expect(data.statusCode).toBe(200);
-		expect(data.result).toMatchObject(mockData);
+
+		expect(data.result).toStrictEqual(expected);
 	});
 
-    it('should create education level', async () => {
-		const mockData = {
-			description: "Bachelors"
-		};
-
-        const stub = sandbox.stub(Repository.prototype)
-        stub.save.returns(successPromise(mockData));
-
-		const data = await server.inject({
-			method: 'POST',
-			url: `/${apiVersion}/education-level`,
-            payload: mockData
+	it('should handle error when unexpected error in listing education', async () => {
+		educationLevelRepository.getEducationLevels = jest.fn().mockImplementationOnce(() => {
+			throw new Error('fake-error');
 		});
-		expect(data.statusCode).toBe(200);
-		expect(data.result).toMatchObject(mockData);
+		const data = await server.inject({
+			method: 'GET',
+			url: `/${apiVersion}/education-level`,
+		});
+		expect(data.statusCode).toBe(500);
+		expect((data.result as any)['message']).toMatch(/fake-error/);
 	});
 
-    it('should return error when creating education level without body', async () => {
-		const mockData = {
-			description: "Bachelors"
-		};
-
-        const stub = sandbox.stub(Repository.prototype)
-        stub.save.returns(successPromise(mockData));
-
+	it('should return 400 when invalid payload in creating', async () => {
 		const data = await server.inject({
 			method: 'POST',
 			url: `/${apiVersion}/education-level`,
+			payload: fakeInvalidPayload,
 		});
 		expect(data.statusCode).toBe(400);
+		expect((data.result as any)['message']).toMatch(/\"description\" is required/);
 	});
 
+	it('should handle error when unexpected error in creating education', async () => {
+		educationLevelRepository.addEducationLevel = jest.fn().mockImplementationOnce(() => {
+			throw new Error('fake-error');
+		});
+		const data = await server.inject({
+			method: 'POST',
+			url: `/${apiVersion}/education-level`,
+			payload: fakeValidPayload,
+		});
+		expect(data.statusCode).toBe(500);
+		expect((data.result as any)['message']).toMatch(/fake-error/);
+	});
 
-    it('should return error when creating education level with incorrect body schema', async () => {
-		const mockData = {
-			description: "Bachelors"
-		};
-
-        const stub = sandbox.stub(Repository.prototype)
-        stub.save.returns(successPromise(mockData));
+	it('should handle error when trying to insert repeated education', async () => {
+		educationLevelRepository.addEducationLevel = jest.fn().mockImplementationOnce(() => {
+			throw new QueryFailedError('', [], []);
+		});
 
 		const data = await server.inject({
 			method: 'POST',
 			url: `/${apiVersion}/education-level`,
-            payload: {
-                unkwonAttribute: true,
-            }
+			payload: fakeValidPayload,
 		});
-		expect(data.statusCode).toBe(400);
+		console.log(data)
+		expect(data.statusCode).toBe(409);
+		expect((data.result as any)['error']).toMatch(/Conflict/);
 	});
 
-    it('should update education level', async () => {
-		const mockData = {
-			description: "Bachelors"
-		};
+	it('should add availabilities', async () => {
+		educationLevelRepository.addEducationLevel = jest.fn().mockResolvedValueOnce(fakeEducationLevel);
+		const expected: CatEducationLevel =  fakeEducationLevel;
 
-        const stub = sandbox.stub(Repository.prototype)
-		stub.findOneOrFail.returns(successPromise(mockData));
-        stub.save.returns(successPromise(mockData));
+		const data = await server.inject({
+			method: 'POST',
+			url: `/${apiVersion}/education-level`,
+			payload: fakeValidPayload,
+		});
+		expect(data.statusCode).toBe(201);
+		expect(data.result).toStrictEqual(expected);
+	});
+
+	it('should handle error when updating education level that not exists', async () => {
+		educationLevelRepository.updateEducationLevel = jest.fn().mockImplementationOnce(() => {
+			throw new EntityNotFoundError(CatEducationLevel, {});
+		});
 
 		const data = await server.inject({
 			method: 'PUT',
 			url: `/${apiVersion}/education-level/1`,
-            payload: mockData
+			payload: fakeValidPayload,
 		});
-		expect(data.statusCode).toBe(200);
+		console.log(data)
+		expect(data.statusCode).toBe(404);
+		expect((data.result as any)['error']).toMatch(/Not Found/);
 	});
 
-	it('should fail update if resource not found', async () => {
-		const mockData = {
-			description: "Bachelors"
-		};
+	it('should return 400 when invalid payload in updating', async () => {
+		const data = await server.inject({
+			method: 'PUT',
+			url: `/${apiVersion}/education-level/1`,
+			payload: fakeInvalidPayload,
+		});
+		expect(data.statusCode).toBe(400);
+		expect((data.result as any)['message']).toMatch(/\"description\" is required/);
+	});
 
-        const stub = sandbox.stub(Repository.prototype)
-		stub.findOneOrFail.throws(EntityNotFoundError);
+	it('should handle error when unexpected error in updating education', async () => {
+		educationLevelRepository.updateEducationLevel = jest.fn().mockImplementationOnce(() => {
+			throw new Error('fake-error');
+		});
+		const data = await server.inject({
+			method: 'PUT',
+			url: `/${apiVersion}/education-level/1`,
+			payload: fakeValidPayload,
+		});
+		expect(data.statusCode).toBe(500);
+		expect((data.result as any)['message']).toMatch(/fake-error/);
+	});
+
+	it('should update successfully education level', async () => {
+		educationLevelRepository.updateEducationLevel = jest.fn().mockResolvedValueOnce(fakeEducationLevel);
+		const expected: CatEducationLevel =  fakeEducationLevel;
 
 		const data = await server.inject({
 			method: 'PUT',
 			url: `/${apiVersion}/education-level/1`,
-			payload: mockData
-		});
-		expect(data.statusCode).toBe(500);
-	});
-
-	it('should delete education level', async () => {
-		const mockData = {
-			description: "Bachelors"
-		};
-
-        const stub = sandbox.stub(Repository.prototype)
-		stub.findOneOrFail.returns(successPromise(mockData));
-        stub.save.returns(successPromise(mockData));
-
-		const data = await server.inject({
-			method: 'DELETE',
-			url: `/${apiVersion}/education-level/1`,
-            payload: mockData
+			payload: fakeValidPayload,
 		});
 		expect(data.statusCode).toBe(200);
+		expect(data.result).toStrictEqual(expected);
 	});
 
-	it('should fail delete if resource not found', async () => {
-		const mockData = {
-			description: "Bachelors"
-		};
-
-        const stub = sandbox.stub(Repository.prototype)
-		stub.findOneOrFail.throws(EntityNotFoundError);
+	it('should handle error when deleting education level that not exists', async () => {
+		educationLevelRepository.deleteEducationLevel = jest.fn().mockImplementationOnce(() => {
+			throw new EntityNotFoundError(CatEducationLevel, {});
+		});
 
 		const data = await server.inject({
 			method: 'DELETE',
 			url: `/${apiVersion}/education-level/1`,
-			payload: mockData
+		});
+		console.log(data)
+		expect(data.statusCode).toBe(404);
+		expect((data.result as any)['error']).toMatch(/Not Found/);
+	});
+
+	it('should handle error when unexpected error in deleting education', async () => {
+		educationLevelRepository.deleteEducationLevel = jest.fn().mockImplementationOnce(() => {
+			throw new Error('fake-error');
+		});
+		const data = await server.inject({
+			method: 'DELETE',
+			url: `/${apiVersion}/education-level/1`,
 		});
 		expect(data.statusCode).toBe(500);
+		expect((data.result as any)['message']).toMatch(/fake-error/);
+	});
+
+	it('should delete successfully education level', async () => {
+		educationLevelRepository.deleteEducationLevel = jest.fn().mockResolvedValueOnce(fakeEducationLevel);
+		const expected: CatEducationLevel =  fakeEducationLevel;
+
+		const data = await server.inject({
+			method: 'DELETE',
+			url: `/${apiVersion}/education-level/1`,
+		});
+		expect(data.statusCode).toBe(200);
+		expect(data.result).toStrictEqual(expected);
 	});
 });

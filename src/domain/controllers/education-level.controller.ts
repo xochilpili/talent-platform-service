@@ -6,6 +6,7 @@ import { IResponse, HttpStatusCodes } from '../../interfaces/responses';
 import { CatEducationLevel } from '../../domain/entities/education-level.entity';
 import { CatEducationLevelRepository } from '../repository/cat-education-level.repository';
 import { Errors } from './../../shared/response-errors';
+import { QueryFailedError, EntityNotFoundError } from 'typeorm'
 
 @injectable()
 export class EducationLevelController {
@@ -30,23 +31,23 @@ export class EducationLevelController {
 
 	public addEducationLevel = async (description: string): Promise<IResponse<CatEducationLevel>> => {
 		try {
-			if (!(await this.educationLevelRepository.educationLevelExists(description))) {
+			const educationLevel = await this.educationLevelRepository.addEducationLevel(description);
+			return {
+				type: 'success',
+				status: HttpStatusCodes.CREATED,
+				message: '',
+				result: educationLevel,
+			};
+		} catch (error: Error | unknown) {
+			if (error instanceof QueryFailedError) {
 				throw Errors.conflict({
-					message: 'Education level already exists',
+					message: error.driverError.detail,
 					issue: '',
 					route: this.constructor.name,
 					method: 'addEducationLevel',
 					learnMore: '',
 				});
 			}
-			const educationLevel = await this.educationLevelRepository.addEducationLevel(description);
-			return {
-				type: 'success',
-				status: HttpStatusCodes.OK,
-				message: '',
-				result: educationLevel,
-			};
-		} catch (error: Error | unknown) {
 			this.logger.error({ error }, `Error creating education level`);
 			if (error instanceof Error) throw Errors.unexpected(error, this.constructor.name);
 			throw error;
@@ -63,6 +64,16 @@ export class EducationLevelController {
 				result: educationLevel,
 			};
 		} catch (error: Error | unknown) {
+			if (error instanceof EntityNotFoundError) {
+				throw Errors.notFound({
+					message: error.message,
+					issue: '',
+					route: this.constructor.name,
+					method: 'addEducationLevel',
+					learnMore: '',
+				});
+			}
+
 			this.logger.error({ error }, `Error updating education level`);
 			if (error instanceof Error) throw Errors.unexpected(error, this.constructor.name);
 			throw error;
@@ -79,6 +90,16 @@ export class EducationLevelController {
 				result: educationLevel,
 			};
 		} catch (error: Error | unknown) {
+			if (error instanceof EntityNotFoundError) {
+				throw Errors.notFound({
+					message: error.message,
+					issue: '',
+					route: this.constructor.name,
+					method: 'addEducationLevel',
+					learnMore: '',
+				});
+			}
+
 			this.logger.error({ error }, `Error deleting education level`);
 			if (error instanceof Error) throw Errors.unexpected(error, this.constructor.name);
 			throw error;
