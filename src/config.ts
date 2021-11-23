@@ -11,7 +11,7 @@ const document = {
 		port: { $env: 'PORT', $coerce: 'number', $default: 4000 },
 	},
 	database: {
-		host: { $env: 'DB_HOSTNAME', $default: '192.168.105.107' },
+		host: { $env: 'DB_HOSTNAME', $default: '192.168.105.1' },
 		port: { $env: 'DB_PORT', $coerce: 'number', $default: 5432 },
 		dbname: { $env: 'DB_NAME', $default: 'encore' },
 		username: { $env: 'DB_USERNAME' },
