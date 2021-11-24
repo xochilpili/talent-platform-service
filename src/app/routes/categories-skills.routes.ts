@@ -30,5 +30,24 @@ export class CategoriesSkillsRoute implements IRouter {
                 },
             },
         });
+
+        server.route({
+            method: 'PUT',
+            path: `/${this.apiVersion}/categories-skills/{id}`,
+            handler: this.categorySkillsHandler.updateCategorySkill,
+            options: {
+                validate: {
+                    payload: {
+                        description: Joi.string().required(),
+                    }
+                }
+            }
+        });
+
+        server.route({
+            method: 'DELETE',
+            path: `/${this.apiVersion}/categories-skills/{id}`,
+            handler: this.categorySkillsHandler.deleteCategorySkill,
+        });
     }
 }

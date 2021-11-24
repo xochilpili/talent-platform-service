@@ -22,7 +22,7 @@ export class CategorySkillsController {
                 result: categoriesSkills,
             };
         } catch (error: Error | unknown) {
-            this.logger.error({ error }, `Error getting availabilities`);
+            this.logger.error({ error }, `Error getting categories skills`);
 			if (error instanceof Error) throw Errors.unexpected(error, this.constructor.name);
 			throw error;
         }
@@ -38,10 +38,42 @@ export class CategorySkillsController {
 				result: catsSkills,
             };
         } catch (error: Error | unknown) {
-            this.logger.error({ error }, `Error getting availabilities`);
+            this.logger.error({ error }, `Error adding category skill`);
 			if (error instanceof Error) throw Errors.unexpected(error, this.constructor.name);
 			throw error;
         }
-    }
+    };
+
+    public updateCategorySkill = async (id: number, description: string): Promise<IResponse<CatCategorySkills>> => {
+        try {
+            const categorySkill = await this.categorySkillsRepository.updateCategorySkill(id, description);
+            return {
+                type: 'success',
+                status: HttpStatusCodes.OK,
+                message: '',
+                result: categorySkill,
+            };
+        } catch (error: Error | unknown) {
+            this.logger.error({ error }, `Error updating category skill`);
+			if (error instanceof Error) throw Errors.unexpected(error, this.constructor.name);
+			throw error;
+        }
+    };
+
+    public deleteCategorySkill = async (id: number): Promise<IResponse<CatCategorySkills>> => {
+        try {
+            const categorySkill = await this.categorySkillsRepository.deleteCategorySkill(id);
+            return {
+				type: 'success',
+				status: HttpStatusCodes.OK,
+				message: '',
+				result: categorySkill,
+			};
+        } catch (error: Error | unknown) {
+            this.logger.error({ error }, `Error deleting category skill`);
+			if (error instanceof Error) throw Errors.unexpected(error, this.constructor.name);
+			throw error;
+        }
+    };
   
 }

@@ -14,4 +14,14 @@ export class CatCategorySkillsRepository {
         return getConnection().getRepository(CatCategorySkills).save(newObject);
     }
 
+    public async updateCategorySkill(id: number, description: string): Promise<CatCategorySkills> {
+        const categorySkillObject = await getConnection().getRepository(CatCategorySkills).findOneOrFail(id);
+        categorySkillObject.description = description;
+        return getConnection().getRepository(CatCategorySkills).save(categorySkillObject);
+    }
+
+    public async deleteCategorySkill(id: number): Promise<CatCategorySkills> {
+        const categorySkillObject = await getConnection().getRepository(CatCategorySkills).findOneOrFail(id);
+        return getConnection().getRepository(CatCategorySkills).remove(categorySkillObject);
+    }
 }
