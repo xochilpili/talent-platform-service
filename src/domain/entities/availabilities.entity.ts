@@ -1,4 +1,4 @@
-import { Column, Entity, EntityRepository, PrimaryGeneratedColumn, Repository } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class CatAvailability {

@@ -4,9 +4,6 @@ import { Types } from './types';
 import { IDatabase } from './interfaces/database';
 import { ILogger } from './logger';
 import { get as getConfig } from './config';
-// entities
-import { CatAvailability } from './domain/entities/availabilities.entity';
-import { CatCategorySkills } from './domain/entities/categories-skills.entity';
 
 @injectable()
 export class DatabaseService implements IDatabase {
@@ -32,7 +29,7 @@ export class DatabaseService implements IDatabase {
 				entities: [
 					getConfig('/database/entities')
 				],
-				synchronize: getConfig('/database/synchronize') == 'true'
+				synchronize: getConfig('/database/synchronize') === 'true'
 			});
 			this.logger.info(`Connection with PostgreSQL stablished`);
 			return DatabaseService.connection;

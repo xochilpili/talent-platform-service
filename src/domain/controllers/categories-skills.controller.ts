@@ -6,6 +6,7 @@ import { IResponse, HttpStatusCodes } from '../../interfaces/responses';
 import { CatCategorySkills } from '../../domain/entities/categories-skills.entity';
 import { CatCategorySkillsRepository } from '../repository/cat-category-skills.repository';
 import { Errors } from './../../shared/response-errors';
+import { QueryFailedError, EntityNotFoundError } from 'typeorm';
 
 @injectable()
 export class CategorySkillsController {
@@ -38,6 +39,15 @@ export class CategorySkillsController {
 				result: catsSkills,
             };
         } catch (error: Error | unknown) {
+            if (error instanceof QueryFailedError) {
+                throw Errors.conflict({
+                    message: error.driverError.detail,
+                    issue: '',
+                    route: this.constructor.name,
+                    method: 'addCategorySkill',
+                    learnMore: '',
+                });
+            }
             this.logger.error({ error }, `Error adding category skill`);
 			if (error instanceof Error) throw Errors.unexpected(error, this.constructor.name);
 			throw error;
@@ -54,6 +64,23 @@ export class CategorySkillsController {
                 result: categorySkill,
             };
         } catch (error: Error | unknown) {
+            if (error instanceof EntityNotFoundError) {
+				throw Errors.notFound({
+					message: error.message,
+					issue: '',
+					route: this.constructor.name,
+					method: 'updateCategorySkill',
+					learnMore: '',
+				});
+			} else if (error instanceof QueryFailedError) {
+				throw Errors.conflict({
+					message: error.driverError.detail,
+					issue: '',
+					route: this.constructor.name,
+					method: 'updateCategorySkill',
+					learnMore: '',
+				});
+			}
             this.logger.error({ error }, `Error updating category skill`);
 			if (error instanceof Error) throw Errors.unexpected(error, this.constructor.name);
 			throw error;
@@ -70,6 +97,15 @@ export class CategorySkillsController {
 				result: categorySkill,
 			};
         } catch (error: Error | unknown) {
+            if (error instanceof EntityNotFoundError) {
+				throw Errors.notFound({
+					message: error.message,
+					issue: '',
+					route: this.constructor.name,
+					method: 'deleteCategorySkill',
+					learnMore: '',
+				});
+			}
             this.logger.error({ error }, `Error deleting category skill`);
 			if (error instanceof Error) throw Errors.unexpected(error, this.constructor.name);
 			throw error;
