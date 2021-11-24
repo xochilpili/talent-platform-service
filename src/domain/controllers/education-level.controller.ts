@@ -72,6 +72,14 @@ export class EducationLevelController {
 					method: 'addEducationLevel',
 					learnMore: '',
 				});
+			} else if (error instanceof QueryFailedError) {
+				throw Errors.conflict({
+					message: error.driverError.detail,
+					issue: '',
+					route: this.constructor.name,
+					method: 'addEducationLevel',
+					learnMore: '',
+				});
 			}
 
 			this.logger.error({ error }, `Error updating education level`);
