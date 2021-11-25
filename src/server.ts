@@ -41,13 +41,16 @@ export default class Server {
 			// adding Joi default validator
 			this._instance.validator(Joi);
 
-			const databaseService = appContext.get<DatabaseService>(DatabaseService);
-			this._connection = await databaseService.getConnection();
-
+			if (process.env.ENV !== 'tests') {
+				const databaseService = appContext.get<DatabaseService>(DatabaseService);
+				this._connection = await databaseService.getConnection();
+				await new Plugins.SentryLoader().register(this._instance);
+			} else {
+				this.logger.info('Skipping connection with Database');
+			}
 			await new Plugins.LoggerLoader().register(this._instance);
 			await new Plugins.SwaggerLoader().register(this._instance);
 			await new Plugins.SecureHeaderLoader().register(this._instance);
-			await new Plugins.SentryLoader().register(this._instance);
 
 			await this.routes.loadRoutes(this._instance);
 			await this._instance.start();
@@ -64,6 +67,8 @@ export default class Server {
 	public static async stop(): Promise<void> {
 		this.logger.info(`Server - Stopping execution`);
 		await this._instance.stop();
-		await this._connection.close();
+		if (process.env.ENV !== 'tests') {
+			await this._connection.close();
+		}
 	}
 }

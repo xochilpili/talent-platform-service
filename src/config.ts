@@ -11,11 +11,14 @@ const document = {
 		port: { $env: 'PORT', $coerce: 'number', $default: 4000 },
 	},
 	database: {
-		host: { $env: 'DB_HOSTNAME', $default: '192.168.105.107' },
-		port: { $env: 'DB_PORT', $coerce: 'number', $default: 5432 },
-		dbname: { $env: 'DB_NAME', $default: 'encore' },
-		username: { $env: 'DB_USERNAME' },
-		password: { $env: 'DB_PASSWORD' },
+		connection: { $env: 'TYPEORM_CONNECTION', $default: 'postgres' },
+		host: { $env: 'TYPEORM_HOST', $default: '192.168.105.1' },
+		port: { $env: 'TYPEORM_PORT', $coerce: 'number', $default: 5432 },
+		dbname: { $env: 'TYPEORM_DATABASE', $default: 'encora' },
+		username: { $env: 'TYPEORM_USERNAME' },
+		password: { $env: 'TYPEORM_PASSWORD' },
+		entities: { $env: 'TYPEORM_ENTITIES', $default: 'src/domain/entities/**/*.ts' },
+		synchronize: { $env: 'TYPEORM_SYNCHRONIZE', $default: false }
 	},
 	sentry: {
 		dsn: { $env: 'SENTRY_DSN' },
